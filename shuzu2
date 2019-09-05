@@ -1,0 +1,76 @@
+#!/bin/sh
+#模式一
+brctl addbr br0
+brctl addif br0 eth$1
+brctl addif br0 eth$2
+
+if [ $# = 2 ]
+
+then
+echo "br0 have build"
+alias ifconfig="/sbin/ifconfig"
+RXpre00=$(ifconfig eth$1 | grep bytes | awk 'NR==1 {print $5}')
+TXpre00=$(ifconfig eth$2 | grep bytes | awk 'NR==2 {print $5}')
+while true; do
+sleep 1
+RXnext=$(ifconfig  eth$1 | grep bytes | awk 'NR==1 {print $5}')
+TXnext=$(ifconfig  eth$2 | grep bytes | awk 'NR==2 {print $5}')
+echo "      RX --- TX"
+echo "eth$1  $((RXnext-RXpre00))      $((TXnext-TXpre00))"
+echo "eth$2  $((RXnext1-RXpre10))      $((TXnext1-TXpre10))"
+done
+
+else
+brctl delbr br0
+fi
+
+
+#模式二(数组)
+a=$(lspci | grep Ethernet | wc -l)
+b=2
+c=`expr $a / $b `
+d=100
+e=0
+a1=$a
+a2=$a
+a3=$a
+
+while (($c>=1))
+do
+brctl addbr br$c
+brctl addif br$c eth$a
+let "a--"
+brctl addif br$c eth$a
+let "c--"
+let "a--"
+done
+
+let "a1--"
+while (($a1>=0))
+do
+RXpre[$d]=$(ifconfig eth$a1 | grep bytes | awk 'NR==1 {print $5}')
+TXpre[$d]=$(ifconfig eth$a1 | grep bytes | awk 'NR==2 {print $5}')
+let "a1--"
+let "d++"
+done
+
+#a 网卡个数  d 00 初始流量  e 0 next流量
+while true; do
+e=0
+d=100
+a2=$a3
+let "a2--"
+echo " RX --- TX"
+while  (( $a2 >= 0 ))    
+do
+sleep 1
+RXnext[$e]=$(ifconfig  eth$a2 | grep bytes | awk 'NR==1 {print $5}')
+TXnext[$e]=$(ifconfig  eth$a2 | grep bytes | awk 'NR==2 {print $5}')
+#echo " RX --- TX"
+echo "eth$a2  $((RXnext[$e]-RXpre[$d]))      $((TXnext[$e]-TXpre[$d]))"
+let "e++"
+let "d++"
+let "a2--"
+done
+
+done

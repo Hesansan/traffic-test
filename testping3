@@ -1,0 +1,30 @@
+#模式二
+a=$(lspci | grep Ethernet | wc -l)
+b=2
+c=`expr $a / $b `
+d=100
+e=0
+a1=$a
+a2=$a
+a3=$a
+
+let "a1--" 
+while (($a1>=0)) 
+do  
+RXpre=$(ifconfig eth$a1 | grep bytes | awk 'NR==1 {print $5}')
+TXpre=$(ifconfig eth$a1 | grep bytes | awk 'NR==2 {print $5}')
+ 
+let "a1--"
+
+done 
+
+while  true; do 
+#a 网卡个数
+sleep 1
+RXnext =$(ifconfig  eth$a2 | grep bytes | awk 'NR==1 {print $5}')
+TXnext =$(ifconfig  eth$a2 | grep bytes | awk 'NR==2 {print $5}')
+echo " RX --- TX"
+echo "eth$a2  $((RXnext-RXpre))      $((TXnext-TXpre))"
+
+let "a--"
+done 
